@@ -1,4 +1,18 @@
 """
+Copyright {2017} {Morton Mo}
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
 Reads a /etc/shadow style password file (that contains username and passwords)
 and try to exhaustive guess the passwords.
 
@@ -62,6 +76,7 @@ class Worker(Process):
                     logger.info('found password %s for user %s',
                                 password, user.username)
                     self._results[user.username] = password
+                    break
                 counter += 1
                 if (counter % 10000) == 0:
                     logger.debug("worker %d has tried %d passwords "
@@ -78,8 +93,8 @@ def main():
                     help='specify the input file')
     ag.add_argument('dict', metavar="DICT", type=str,
                     help='spcify the dictionary file to try')
-    ag.add_argument('-n', '--num-workers', type=int, default=8,
-                    help='specify the number of workers')
+    ag.add_argument('-n', '--max-workers', type=int, default=8,
+                    help='specify the maximum number of workers')
 
     start_time = time.time()
     args = ag.parse_args()
@@ -101,7 +116,7 @@ def main():
 
     manager = Manager()
     results = manager.dict()
-    for i in range(0, args.num_workers):
+    for i in range(0, min(args.max_workers, num_users)):
         worker = Worker(i, queue, lines, results)
         worker.daemon = False
         worker.start()
