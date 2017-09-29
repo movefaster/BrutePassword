@@ -8,5 +8,9 @@ A simple Python script to brute force a user's password as stored in `/etc/shado
 # Usage
 ```bash
 $ pip3 install -r requirements.txt
+# show help
 $ python3 brute_password.py -h
+# run exhaustive search on all passwords in passwords.txt using
+# password_dict.txt as dictionary
+$ python3 brute_password.py passwords.txt password_dict.txt
 ```
