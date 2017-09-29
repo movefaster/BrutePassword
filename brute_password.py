@@ -1,9 +1,15 @@
+"""
+Reads a /etc/shadow style password file (that contains username and passwords)
+and try to exhaustive guess the passwords.
+
+Only supports MD5 hash.
+"""
+
 import re
 from argparse import ArgumentParser
 import logging
 import os
 import sys
-import threading
 import time
 from collections import namedtuple
 from queue import Empty
@@ -72,7 +78,7 @@ def main():
                     help='specify the input file')
     ag.add_argument('dict', metavar="DICT", type=str,
                     help='spcify the dictionary file to try')
-    ag.add_argument('-n', '--num-threads', type=int, default=8,
+    ag.add_argument('-n', '--num-workers', type=int, default=8,
                     help='specify the number of workers')
 
     start_time = time.time()
@@ -95,7 +101,7 @@ def main():
 
     manager = Manager()
     results = manager.dict()
-    for i in range(0, args.num_threads):
+    for i in range(0, args.num_workers):
         worker = Worker(i, queue, lines, results)
         worker.daemon = False
         worker.start()
